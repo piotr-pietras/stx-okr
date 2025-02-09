@@ -1,0 +1,30 @@
+services:
+  stx-okr-frontend:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./stx-okr-frontend/dist:/usr/share/nginx/html:ro
+    restart: always
+
+  stx-okr-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - '3000:3000'
+    depends_on:
+      -  stx-okr-postgres
+
+  stx-okr-postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
