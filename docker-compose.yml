@@ -14,8 +14,11 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - '3000:3000'
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@stx-okr-postgres:5432/postgres?schema=public
     depends_on:
-      -  stx-okr-postgres
+      stx-okr-postgres:
+        condition: service_healthy
 
   stx-okr-postgres:
     image: postgres:15-alpine
@@ -25,6 +28,11 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 100
 
 volumes:
   postgres_data:
